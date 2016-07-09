@@ -1,21 +1,33 @@
-Level 1
+Level 6
 
-You see before yourself a long hallway with stairs at the end. There is nothing in the way.
+The wall behind you feels a bit further away in this room. And you hear more cries for help.
 
-Tip: Call `warrior.walk()` to walk forward in the Player `playTurn` method.
+Tip: You can walk backward by passing `'backward'` as an argument to `walk()`. Same goes for `feel()`, `rescue()` and `attack()`. Archers have a limited attack distance.
 
 
 ╔════════╗
-║@      >║
+║C @ S aa║
 ╚════════╝
 
   > = stairs
   @ = Stevenson
+  S = thickSludge
+  a = archer
 
 
 Warrior abilities:
 
-  warrior.walk() (NEW!)
+  warrior.walk()
+
+  warrior.attack()
+
+  warrior.feel()
+
+  warrior.health()
+
+  warrior.rest()
+
+  warrior.rescue()
 
 
 When you're done editing Player.js, run the warriorjs command again.
