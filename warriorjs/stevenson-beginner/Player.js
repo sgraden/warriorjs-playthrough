@@ -2,89 +2,95 @@
 
 class Player {
     constructor () {
-        this.health = 20;
-        this.charge = false;
-        this.direction = 'backward';
-        this.acted = false;
-
+        this.lastHealth = 20;
+        this.fighting = false; //currently attacking something
+        this.currDirection = 'backward';
+        this.action = ""; //default to walk
     }
 
     playTurn (warrior) {
-        this.acted = false;
-        if (warrior.health < 10) {
-            this.charge = false;
+        this.action = ""; //default to walk
+        this.checkDirection(warrior); //which way should be facing
+
+        this.checkRest(warrior);
+        this.checkRunning(warrior);
+        this.checkAttack(warrior);
+        this.checkRescue(warrior);
+
+        this.commitAction(warrior);
+        this.lastHealth = warrior.health();
+    }
+
+    commitAction (warrior) {
+        if (this.action == "rest") {
+            warrior.rest();
+        } else if (this.action == "attack") {
+            warrior.attack(this.currDirection);
+        } else if (this.action == "rescue") {
+            warrior.rescue(this.currDirection);
+        } else {
+            warrior.walk(this.currDirection);
         }
-        this.checkDirection(warrior);   //Set direction to go
-        if (!this.acted) {
-            this.checkCaptive(warrior);     //check if you found a captiv
-        }
-        console.log(this.charge);
-        if (!this.acted && !this.charge) { //if not charging then check if need to rest
-            this.checkRest(warrior);
-        }
-        if (!this.acted) {
-            this.checkCharge(warrior);
-        }
-        if (!this.acted) {
-            this.checkAttack(warrior);
-        }
-        if (!this.acted) {
-            warrior.walk(this.direction); //walk!
-        }
-        this.health = warrior.health();
     }
 
     checkDirection (warrior) {
-        var feel = warrior.feel(this.direction);
-        if (feel.isWall()) {
-            this.oppositeDirection();
-        }
-    }
-
-    checkCaptive (warrior) {
-        var feel = warrior.feel(this.direction);
-        if (feel.isCaptive()) {
-            warrior.rescue(this.direction);
-            this.acted = true;
-        }
-    }
-
-    checkRest (warrior) {
-        console.log('check rest');
-        if (warrior.health < this.health) { //taking damage
-            this.oppositeDirection(); // turn around
-            warrior.walk(this.direction);
-            this.acted = true;
-        } else if (warrior.health < 20) {
-            console.log('resting');
-            warrior.rest();
-            this.acted = true;
-        }
-        if (this.acted && warrior.health == 20) { //all healed turnaround and run
-            this.oppositeDirection();
-        }
-    }
-
-    checkCharge (warrior) {
-        if (warrior.health == 20) {
-            this.charge = true;
+        if (warrior.feel(this.currDirection).isWall()) {
+            this.turnArround();
         }
     }
 
     checkAttack (warrior) {
-        var feel = warrior.feel(this.direction);
-        if (feel.isEnemy()) {
-            warrior.attack(this.direction);
-            this.acted = true;
+        if (warrior.feel(this.currDirection).isEnemy()) {
+            this.fighting = true;
+            this.action = "attack";
+        } else {
+            this.fighting = false;
         }
     }
 
-    oppositeDirection () {
-        if (this.direction == 'forward') {
-            this.direction = 'backward';
-        } else {
-            this.direction = 'forward';
+    checkRescue (warrior) {
+        if (warrior.feel(this.currDirection).isCaptive()) {
+            this.action = "rescue";
         }
+    }
+
+    checkRest (warrior) {
+        if (!this.fighting && warrior.health() < 20) { //heal to full
+            this.action = "rest";
+        }
+
+        if (warrior.health() > 14) {
+            this.readyToFight = true;
+        } else {
+            this.readyToFight = false;
+        }
+    }
+
+    checkRunning (warrior) {
+        if (!this.readyToFight) { //If not enough health check if healing
+            // if taking damage and not fighting or low health and fighting
+            //turn around, stop fighting, and walk
+            if ((this.takingDamage(warrior) && !this.fighting) ||
+                (warrior.health() < 6)) {
+
+                this.turnArround();
+                this.fighting = false;
+                this.readyToFight = false;
+                this.action = "";
+            }
+        }
+    }
+
+    turnArround () {
+        if (this.currDirection == 'forward') {
+            this.currDirection = 'backward';
+        } else {
+            this.currDirection = 'forward';
+        }
+    }
+
+    takingDamage (warrior) {
+        return this.lastHealth > warrior.health();
     }
 
     /**
