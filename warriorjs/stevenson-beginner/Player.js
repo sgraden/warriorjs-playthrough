@@ -1,4 +1,4 @@
-'esversion: 6';
+/*jshint esversion: 6 */
 
 class Player {
     constructor () {
@@ -31,6 +31,8 @@ class Player {
             warrior.rest();
         } else if (this.action == 'attack') {
             warrior.attack(this.currDirection);
+        } else if (this.action == 'shoot') {
+            warrior.shoot(this.currDirection);
         } else if (this.action == 'rescue') {
             warrior.rescue(this.currDirection);
         } else if (this.action == 'pivot') {
@@ -50,12 +52,16 @@ class Player {
     checkAttack (warrior) {
         if (warrior.feel(this.currDirection).isEnemy() && this.readyToFight) {
             this.action = "attack";
+        } else if (warrior.look().find(space => space.isEnemy())) {
+            this.action = 'shoot';
         }
     }
 
     checkRescue (warrior) {
         if (warrior.feel(this.currDirection).isCaptive()) {
             this.action = "rescue";
+        } else if (warrior.look().find(space => space.isCaptive())) {
+            this.action = "";
         }
     }
 
