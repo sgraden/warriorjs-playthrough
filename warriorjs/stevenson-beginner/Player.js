@@ -27,12 +27,14 @@ class Player {
     }
 
     commitAction (warrior) {
-        if (this.action == "rest") {
+        if (this.action == 'rest') {
             warrior.rest();
-        } else if (this.action == "attack") {
+        } else if (this.action == 'attack') {
             warrior.attack(this.currDirection);
-        } else if (this.action == "rescue") {
+        } else if (this.action == 'rescue') {
             warrior.rescue(this.currDirection);
+        } else if (this.action == 'pivot') {
+            warrior.pivot();
         } else {
             warrior.walk(this.currDirection);
         }
@@ -41,6 +43,7 @@ class Player {
     checkDirection (warrior) {
         if (warrior.feel(this.currDirection).isWall()) {
             this.turnArround();
+            this.action = 'pivot';
         }
     }
 
@@ -61,7 +64,7 @@ class Player {
             this.action = "rest";
         } else if (warrior.health() == 20) {
             this.fullHealth = true;
-            this.currDirection = 'forward';
+            this.currDirection = 'forward'; //attack forward
         }
         this.readyToFight = warrior.health() > 10; //check low health
     }
@@ -76,6 +79,7 @@ class Player {
     turnArround () {
         if (this.currDirection == 'forward') {
             this.currDirection = 'backward';
+
         } else {
             this.currDirection = 'forward';
         }
